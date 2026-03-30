@@ -1,0 +1,151 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div>
+      <a routerLink="/" class="back-link">Back to Dashboard</a>
+      <p class="eyebrow">Library admin</p>
+      <h1 class="page-title">Manage Authors</h1>
+      <p class="page-subtitle">
+        Create, review, update, and delete authors using the same backend routes as the React frontend.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="app-button" (click)="openAddAuthorModal()">
+        + Add Author
+      </button>
+    </div>
+  </header>
+
+  @if (alertType && message) {
+    <div
+      class="alert"
+      [class.alert--success]="alertType === 'success'"
+      [class.alert--error]="alertType === 'error'"
+    >
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="empty-state">
+      <h2>Loading authors...</h2>
+      <p>The Angular page is reading data from the existing `/api/authors` endpoint.</p>
+    </div>
+  } @else if (!authors.length) {
+    <div class="empty-state">
+      <h2>No authors found</h2>
+      <p>Use the add button above to create the first author record from Angular.</p>
+    </div>
+  } @else {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Author</th>
+            <th>Birthday</th>
+            <th>Description</th>
+            <th>Created Date</th>
+            <th>Updated Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (author of authors; track trackByAuthorId($index, author)) {
+            <tr>
+              <td>{{ author.id }}</td>
+              <td>{{ author.name }}</td>
+              <td>{{ formatDateOnly(author.birthday) }}</td>
+              <td class="table-description">{{ author.bio || '-' }}</td>
+              <td>{{ formatDateTime(author.createdAt) }}</td>
+              <td>{{ formatDateTime(author.updatedAt) }}</td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" class="table-action" (click)="openEditAuthorModal(author)">Edit</button>
+                  <button type="button" class="table-action table-action--primary" (click)="openViewAuthorModal(author)">View</button>
+                  <button type="button" class="table-action table-action--danger" (click)="openDeleteAuthorModal(author)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <app-modal-shell
+    [open]="isAuthorEditorOpen"
+    [title]="isEditMode ? 'Edit Author' : 'Add Author'"
+    primaryText="Save"
+    (closed)="closeAuthorEditor()"
+    (primaryAction)="saveAuthor()"
+  >
+    <form class="form-grid" [formGroup]="authorForm">
+      <label class="form-field">
+        <span>Name</span>
+        <input type="text" formControlName="name" placeholder="Author name" />
+      </label>
+
+      <label class="form-field">
+        <span>Birthday</span>
+        <input type="date" formControlName="birthday" />
+      </label>
+
+      <label class="form-field form-field--full">
+        <span>Description</span>
+        <textarea rows="5" formControlName="bio" placeholder="Author description"></textarea>
+      </label>
+    </form>
+  </app-modal-shell>
+
+  <app-modal-shell
+    [open]="isAuthorViewOpen"
+    title="Author Details"
+    closeText="Close"
+    [hidePrimary]="true"
+    (closed)="closeAuthorView()"
+  >
+    @if (selectedAuthor) {
+      <div class="detail-grid">
+        <div class="detail-item">
+          <p class="detail-label">ID</p>
+          <p class="detail-value">{{ selectedAuthor.id }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Name</p>
+          <p class="detail-value">{{ selectedAuthor.name }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Birthday</p>
+          <p class="detail-value">{{ formatDateOnly(selectedAuthor.birthday) }}</p>
+        </div>
+        <div class="detail-item detail-item--full">
+          <p class="detail-label">Description</p>
+          <p class="detail-value">{{ selectedAuthor.bio || '-' }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Created Date</p>
+          <p class="detail-value">{{ formatDateTime(selectedAuthor.createdAt) }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Updated Date</p>
+          <p class="detail-value">{{ formatDateTime(selectedAuthor.updatedAt) }}</p>
+        </div>
+      </div>
+    }
+  </app-modal-shell>
+
+  <app-modal-shell
+    [open]="isAuthorDeleteOpen"
+    title="Delete Author"
+    primaryText="Delete"
+    [dangerPrimary]="true"
+    (closed)="closeAuthorDelete()"
+    (primaryAction)="confirmDeleteAuthor()"
+  >
+    <p class="confirm-copy">
+      Are you sure you want to delete author
+      <strong>{{ selectedAuthor?.name }}</strong>?
+    </p>
+  </app-modal-shell>
+</section>

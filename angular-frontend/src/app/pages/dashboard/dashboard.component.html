@@ -1,0 +1,88 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Angular replica</p>
+      <h1 class="page-title">MultiCloud with Devops by VEERA Nareshit Dashboard</h1>
+      <p class="page-subtitle">
+        This Angular frontend mirrors the React app and talks to the same backend API.
+      </p>
+    </div>
+
+    <div class="nav-actions">
+      <a routerLink="/books" class="app-button">Books</a>
+      <a routerLink="/authors" class="app-button app-button--secondary">Authors</a>
+    </div>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <p class="stat-label">Books tracked</p>
+      <h2 class="stat-value">{{ books.length }}</h2>
+      <p class="stat-caption">Loaded from the existing `/api/books` route.</p>
+    </article>
+
+    <article class="stat-card">
+      <p class="stat-label">Total pages</p>
+      <h2 class="stat-value">{{ totalPages }}</h2>
+      <p class="stat-caption">Combined page count across the whole catalog.</p>
+    </article>
+
+    <article class="stat-card">
+      <p class="stat-label">Authors represented</p>
+      <h2 class="stat-value">{{ uniqueAuthors }}</h2>
+      <p class="stat-caption">Unique author names included in the book join.</p>
+    </article>
+
+    <article class="stat-card">
+      <p class="stat-label">Average pages</p>
+      <h2 class="stat-value">{{ averagePages }}</h2>
+      <p class="stat-caption">Average size of the books currently returned.</p>
+    </article>
+  </section>
+
+  @if (errorMessage) {
+    <div class="alert alert--error">
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="empty-state">
+      <h2>Loading dashboard data...</h2>
+      <p>Fetching books from the backend so the Angular charts can render.</p>
+    </div>
+  } @else if (!books.length) {
+    <div class="empty-state">
+      <h2>No books available yet</h2>
+      <p>Add books through the backend or the Books page to populate the dashboard.</p>
+    </div>
+  } @else {
+    <section class="charts-grid">
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Pie Chart</p>
+            <h2 class="panel-title">Books Per Author</h2>
+          </div>
+        </div>
+
+        <div class="chart-surface">
+          <canvas #booksPieCanvas></canvas>
+        </div>
+      </article>
+
+      <article class="panel chart-panel chart-panel--wide">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Bar Chart</p>
+            <h2 class="panel-title">Book Length Distribution</h2>
+          </div>
+        </div>
+
+        <div class="chart-surface chart-surface--wide">
+          <canvas #booksBarCanvas></canvas>
+        </div>
+      </article>
+    </section>
+  }
+</section>

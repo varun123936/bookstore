@@ -1,0 +1,191 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div>
+      <a routerLink="/" class="back-link">Back to Dashboard</a>
+      <p class="eyebrow">Library admin</p>
+      <h1 class="page-title">Manage Books</h1>
+      <p class="page-subtitle">
+        This Angular page recreates the React book workflow against the same `/api/books` backend endpoints.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="app-button" (click)="openAddBookModal()" [disabled]="!authors.length">
+        + Add Book
+      </button>
+    </div>
+  </header>
+
+  @if (alertType && message) {
+    <div
+      class="alert"
+      [class.alert--success]="alertType === 'success'"
+      [class.alert--error]="alertType === 'error'"
+    >
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  @if (!isLoading && !authors.length) {
+    <div class="alert alert--error">
+      <span>Add at least one author before creating books.</span>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="empty-state">
+      <h2>Loading books...</h2>
+      <p>The Angular frontend is fetching books and authors from the existing backend.</p>
+    </div>
+  } @else if (!books.length) {
+    <div class="empty-state">
+      <h2>No books found</h2>
+      <p>Use the add button above to create the first book record from Angular.</p>
+    </div>
+  } @else {
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Release Date</th>
+            <th>Pages</th>
+            <th>Author</th>
+            <th>Created Date</th>
+            <th>Updated Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (book of books; track trackByBookId($index, book)) {
+            <tr>
+              <td>{{ book.id }}</td>
+              <td>{{ book.title }}</td>
+              <td class="table-description">{{ book.description || '-' }}</td>
+              <td>{{ formatDateOnly(book.releaseDate) }}</td>
+              <td>{{ book.pages }}</td>
+              <td>{{ book.name }}</td>
+              <td>{{ formatDateTime(book.createdAt) }}</td>
+              <td>{{ formatDateTime(book.updatedAt) }}</td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" class="table-action" (click)="openEditBookModal(book)">Edit</button>
+                  <button type="button" class="table-action table-action--primary" (click)="openViewBookModal(book)">View</button>
+                  <button type="button" class="table-action table-action--danger" (click)="openDeleteBookModal(book)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <app-modal-shell
+    [open]="isBookEditorOpen"
+    [title]="isEditMode ? 'Edit Book' : 'Add Book'"
+    primaryText="Save"
+    (closed)="closeBookEditor()"
+    (primaryAction)="saveBook()"
+  >
+    <form class="form-grid" [formGroup]="bookForm">
+      <label class="form-field">
+        <span>Title</span>
+        <input type="text" formControlName="title" placeholder="Book title" />
+      </label>
+
+      <label class="form-field">
+        <span>Release Date</span>
+        <input type="date" formControlName="releaseDate" />
+      </label>
+
+      <label class="form-field form-field--full">
+        <span>Description</span>
+        <textarea rows="5" formControlName="description" placeholder="Book description"></textarea>
+      </label>
+
+      <label class="form-field">
+        <span>Pages</span>
+        <input type="number" formControlName="pages" placeholder="Total pages" />
+      </label>
+
+      <label class="form-field">
+        <span>Author</span>
+        <select formControlName="author">
+          @for (author of authors; track author.id) {
+            <option [value]="author.id">{{ author.name }}</option>
+          }
+        </select>
+      </label>
+    </form>
+  </app-modal-shell>
+
+  <app-modal-shell
+    [open]="isBookViewOpen"
+    title="Book Details"
+    closeText="Close"
+    [hidePrimary]="true"
+    (closed)="closeBookView()"
+  >
+    @if (selectedBook) {
+      <div class="detail-grid">
+        <div class="detail-item">
+          <p class="detail-label">ID</p>
+          <p class="detail-value">{{ selectedBook.id }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Title</p>
+          <p class="detail-value">{{ selectedBook.title }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Release Date</p>
+          <p class="detail-value">{{ formatDateOnly(selectedBook.releaseDate) }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Pages</p>
+          <p class="detail-value">{{ selectedBook.pages }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Author</p>
+          <p class="detail-value">{{ selectedBook.name }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Author Birthday</p>
+          <p class="detail-value">{{ formatDateOnly(selectedBook.birthday) }}</p>
+        </div>
+        <div class="detail-item detail-item--full">
+          <p class="detail-label">Book Description</p>
+          <p class="detail-value">{{ selectedBook.description || '-' }}</p>
+        </div>
+        <div class="detail-item detail-item--full">
+          <p class="detail-label">Author Description</p>
+          <p class="detail-value">{{ selectedBook.bio || '-' }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Created Date</p>
+          <p class="detail-value">{{ formatDateTime(selectedBook.createdAt) }}</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Updated Date</p>
+          <p class="detail-value">{{ formatDateTime(selectedBook.updatedAt) }}</p>
+        </div>
+      </div>
+    }
+  </app-modal-shell>
+
+  <app-modal-shell
+    [open]="isBookDeleteOpen"
+    title="Delete Book"
+    primaryText="Delete"
+    [dangerPrimary]="true"
+    (closed)="closeBookDelete()"
+    (primaryAction)="confirmDeleteBook()"
+  >
+    <p class="confirm-copy">
+      Are you sure you want to delete book
+      <strong>{{ selectedBook?.title }}</strong>?
+    </p>
+  </app-modal-shell>
+</section>

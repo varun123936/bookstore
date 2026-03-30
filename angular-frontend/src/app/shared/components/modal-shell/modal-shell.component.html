@@ -1,0 +1,37 @@
+@if (open) {
+  <div class="modal-backdrop" (click)="handleBackdropClick($event)">
+    <section class="modal-card" role="dialog" aria-modal="true" [attr.aria-label]="title">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">Angular Frontend</p>
+          <h2 class="modal-title">{{ title }}</h2>
+        </div>
+        <button type="button" class="icon-button" (click)="closeModal()" aria-label="Close modal">
+          x
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <ng-content />
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="ghost-button" (click)="closeModal()">
+          {{ closeText }}
+        </button>
+
+        @if (!hidePrimary) {
+          <button
+            type="button"
+            class="app-button"
+            [class.app-button--danger]="dangerPrimary"
+            [disabled]="primaryDisabled"
+            (click)="handlePrimaryAction()"
+          >
+            {{ primaryText }}
+          </button>
+        }
+      </footer>
+    </section>
+  </div>
+}
